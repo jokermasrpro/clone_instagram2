@@ -1,10 +1,8 @@
 import 'package:clone_instagram/screens/login_screen.dart';
-import 'package:clone_instagram/screens/provider.dart';
 import 'package:clone_instagram/screens/widgets/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,13 +13,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
-  void initState() {
-    //TODO_implement_initState
-    super.initState();
-    final userprovider = Provider.of<UserProvider>(context, listen: false);
-    userprovider.fetchuser(userid: userprovider.getuser!.uid);
-  }
-
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(

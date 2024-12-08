@@ -1,6 +1,5 @@
 import 'package:clone_instagram/screens/Moded/model_user.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider with ChangeNotifier {

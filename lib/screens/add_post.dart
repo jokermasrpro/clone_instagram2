@@ -77,6 +77,12 @@ class _AddPostState extends State<AddPost> {
     }
   }
 
+   @override
+  void initState() {
+    super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchuser( userid: FirebaseAuth.instance.currentUser!.uid);
+  }
   @override
   Widget build(BuildContext context) {
     final desController = TextEditingController();

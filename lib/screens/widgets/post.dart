@@ -1,5 +1,6 @@
 import 'package:clone_instagram/screens/comment_screen.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
+import 'package:clone_instagram/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -15,32 +16,46 @@ class Post extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(userMap['userImage']),
-                radius: 25,
-              ),
-              SizedBox(width: 15),
-              Text(
-                userMap['userName'],
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold),
-              ),
-              Spacer(),
-              Visibility(
-                  visible:
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(
+                    userUID: userMap['uid'],
+                  ),
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: NetworkImage(userMap['userImage']),
+                  radius: 25,
+                ),
+                SizedBox(width: 15),
+                Text(
+                  userMap['userName'],
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+                Spacer(),
+                Visibility(
+
+                  visible: 
                       userMap['uid'] == FirebaseAuth.instance.currentUser!.uid
                           ? true
                           : false,
                   child: IconButton(
-                      onPressed: () {
-                        FirebaseServices().deletePost(postDelete: userMap);
-                      },
-                      icon: Icon(Icons.delete)))
-            ],
+                    onPressed: () {
+                      FirebaseServices().deletePost(postDelete: userMap);
+                    },
+                    icon: Icon(Icons.delete),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(
             height: 20,
@@ -67,8 +82,10 @@ class Post extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) =>  CommentScreen(postId: userMap['postId'],)));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => CommentScreen(
+                            postId: userMap['postId'],
+                          )));
                 },
                 icon: const Icon(
                   Icons.comment,
