@@ -77,4 +77,21 @@ class FirebaseServices {
       'following': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
     });
   }
+
+
+  unfollow({required userid})async{
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'following': FieldValue.arrayRemove([userid])
+    });
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(userid)
+        .update({
+      'following': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+    });
+  }
 }

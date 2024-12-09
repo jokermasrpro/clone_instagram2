@@ -41,5 +41,7 @@ class ModelUser {
       snapshot['uid'],
     );
   }
+
+  
 }
 

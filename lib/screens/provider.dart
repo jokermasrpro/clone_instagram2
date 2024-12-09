@@ -14,4 +14,15 @@ class UserProvider with ChangeNotifier {
     userData = user;
     notifyListeners();
   }
+
+  void increase_followers(){
+    getuser!.followers.length++;
+    notifyListeners();
+  }
+  void decrease_followers(){
+    getuser!.followers.length--;
+    notifyListeners();
+  }
+  
+
 }

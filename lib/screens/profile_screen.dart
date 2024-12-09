@@ -16,15 +16,45 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   late List following;
-  late bool inFolloing;
+    bool isloading = false;
 
+  
+  late bool inFolloing = false;
+  // void fetch_current_user() async {
+  //   setState(() {
+  //     isloading=true;
+  //   });
+  //   var snapshot = await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(FirebaseAuth.instance.currentUser!.uid)
+  //       .get();
+  //   following = snapshot.data()!['following'];
+
+  //   setState(() {
+  //      inFolloing = following.contains(widget.userUID);
+      
+      
+  //   });
+  // }
   void fetch_current_user() async {
-    var snapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-        following = snapshot.data()!['following'];
-        inFolloing= following.contains(widget.userUID);
+   
+    try {
+      var snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+
+      following = List<String>.from(snapshot.data()?['following'] ?? []);
+      setState(() {
+        inFolloing = following.contains(widget.userUID);
+      });
+    } catch (e) {
+      print("Error fetching user: $e");
+    } finally {
+      setState(() {
+        isloading = false;
+      });
+    }
   }
 
   @override
@@ -44,8 +74,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
       );
     }
 
+
+     if (userProvider.getuser == null) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      body: SafeArea(
+      appBar: AppBar(
+        title: Text(
+          "${userProvider.getuser!.userName}",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        foregroundColor: Colors.white,
+        leading: FirebaseAuth.instance.currentUser!.uid == widget.userUID
+            ? Text("")
+            : BackButton(),
+      ),
+      body:isloading == true ? CircularProgressIndicator() : SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -57,19 +105,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       InkWell(
                         onTap: () {
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //     builder: (_) => ViewImage(
-                          //         image: userProvider.getuser!.userImage)));
                           showDialog(
                             context: context,
                             builder: (context) {
-                              return Container(
-                                  child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                  userProvider.getuser!.userImage,
-                                ),
-                                radius: 50,
-                              ));
+                              return CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                      userProvider.getuser!.userImage),
+                                  radius: 50,
+                                );
                             },
                           );
                         },
@@ -106,10 +149,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                  const Column(
+                  Column(
                     children: [
                       Text(
-                        "2220",
+                        "${userProvider.getuser!.followers.length}",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -124,10 +167,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-                   Column(
+                  Column(
                     children: [
                       Text(
-                        "${following.length}",
+                        "${userProvider.getuser!.following.length}",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -155,21 +198,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         FirebaseAuth.instance.currentUser!.uid ==
                                 userProvider.getuser!.uid
                             ? Colors.grey[900]
-                            : Colors.blue),
+                            : inFolloing == true
+                                ? Colors.grey[900]
+                                : Colors.blue),
                   ),
-                  onPressed: () {
-                    if (inFolloing){
+
+                  onPressed: () async {
+                    if (FirebaseAuth.instance.currentUser!.uid ==
+                        userProvider.getuser!.uid) {
+                      // تعديل الملف الشخصي
                       return;
                     }
-                    else{
-                      FirebaseServices().follow(userid: widget.userUID);
+
+                    setState(() {
+                      inFolloing = !inFolloing;
+                    });
+
+                    if (inFolloing == true) {
+                      await FirebaseServices().unfollow(userid: widget.userUID);
+                      
+                      userProvider.decrease_followers();
+                      setState(() {
+                        
+                        inFolloing=false;
+                      });
+                    } else {
+                      await FirebaseServices().follow(userid: widget.userUID);
+                      setState(() {
+                        
+                        inFolloing=true;  
+                      });
+                      userProvider.increase_followers();
+                      
                     }
                   },
+
+                  // onPressed: () {
+                  //   if (inFolloing) {
+                  //     setState(() {
+                  //       inFolloing=false;
+                  //     });
+                  //     return;
+                  //   } else {
+                  //     setState(() {
+                  //       inFolloing=true;
+                  //     });
+                  //     FirebaseServices().follow(userid: widget.userUID);
+                  //   }
+                  // },
                   child: Text(
                     FirebaseAuth.instance.currentUser!.uid ==
                             userProvider.getuser!.uid
                         ? "Edit Profile"
-                        : "Followe",
+                        : inFolloing == true
+                            ? "unFollowe"
+                            : "Follow",
                     style: TextStyle(color: Colors.white),
                   ),
                 ),
