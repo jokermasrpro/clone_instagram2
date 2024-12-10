@@ -74,7 +74,7 @@ class FirebaseServices {
         .collection("users")
         .doc(userid)
         .update({
-      'following': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+      'followers': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
     });
   }
 
@@ -91,7 +91,7 @@ class FirebaseServices {
         .collection("users")
         .doc(userid)
         .update({
-      'following': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+      'followers': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
     });
   }
 }

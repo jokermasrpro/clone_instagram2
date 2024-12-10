@@ -3,6 +3,7 @@ import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:clone_instagram/screens/profile_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Post extends StatelessWidget {
   final Map<String, dynamic> userMap;
@@ -51,7 +52,7 @@ class Post extends StatelessWidget {
                     onPressed: () {
                       FirebaseServices().deletePost(postDelete: userMap);
                     },
-                    icon: Icon(Icons.delete),
+                    icon: Icon(Icons.delete,color: Color(0xffff0000),),
                   ),
                 ),
               ],
@@ -108,8 +109,8 @@ class Post extends StatelessWidget {
                 "Add comment",
                 style: TextStyle(color: Colors.grey),
               )),
-          const Text(
-            "1 hour ago",
+           Text(
+            DateFormat.MMMEd().format(userMap['time'].toDate()),
             style: TextStyle(color: Colors.white, fontSize: 16),
           )
         ],

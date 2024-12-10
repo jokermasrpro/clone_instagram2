@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:video_player/video_player.dart';
 
 class AddPost extends StatefulWidget {
   const AddPost({super.key});
@@ -18,6 +19,7 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> {
+  late VideoPlayerController videoPlayerController;
   final String apiKey = '4f583d1e868a139e8a60dbd4b10b9cb9';
   File? selectedImage;
   String? exportUrl;
@@ -107,6 +109,7 @@ class _AddPostState extends State<AddPost> {
           'postId': uuid,
           'likes': [],
           'des': desController.text,
+          'time':Timestamp.now(),
         });
         setState(() {
           selectedImage = null;
