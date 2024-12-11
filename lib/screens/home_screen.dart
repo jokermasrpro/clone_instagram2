@@ -59,9 +59,42 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+                SizedBox(
+                  width: double.infinity,
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 8,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.pink, width: 2),
+                                image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(
+                                      'https://i.pinimg.com/736x/f4/05/a8/f405a89b972ef01be59c662757590dd5.jpg',
+                                    )),
+                              ),
+                            ),
+                            Text("name",style: ,)
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
-                      .collection("posts").orderBy('time',descending: true)
+                      .collection("posts")
+                      .orderBy('time', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {

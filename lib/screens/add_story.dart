@@ -1,5 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:clone_instagram/screens/features/dialog_push_story.dart';
+import 'package:clone_instagram/screens/provider.dart';
+import 'package:clone_instagram/shard/widgets/button_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +10,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import 'package:video_player/video_player.dart';
 
 class AddStory extends StatefulWidget {
   const AddStory({super.key});
@@ -18,20 +20,20 @@ class AddStory extends StatefulWidget {
 
 class _AddStoryState extends State<AddStory> {
   final String apiKey = '4f583d1e868a139e8a60dbd4b10b9cb9';
-  late VideoPlayerController videoPlayerController;
   File? selectedImage;
-  File? selectedVideo;
   String? exportUrl;
   final ImagePicker _picker = ImagePicker();
+
+  final desController = TextEditingController();
 
   Future<void> pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
 
       if (pickedFile != null) {
-        setState(() {
+        setState(() async {
           selectedImage = File(pickedFile.path);
-          selectedVideo = null;
+        
         });
       } else {
         ScaffoldMessenger.of(context)
@@ -40,28 +42,6 @@ class _AddStoryState extends State<AddStory> {
     } catch (e) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Error picking image: $e")));
-    }
-  }
-
-  Future<void> pickVideo(ImageSource source) async {
-    try {
-      final pickedFile = await _picker.pickVideo(source: source);
-
-      if (pickedFile != null) {
-        selectedVideo = File(pickedFile.path);
-        selectedImage = null;
-
-        videoPlayerController = VideoPlayerController.file(selectedVideo!);
-        await videoPlayerController.initialize();
-        setState(() {}); // Update UI after initializing
-        videoPlayerController.play();
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("No video selected")));
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Error picking video: $e")));
     }
   }
 
@@ -99,16 +79,55 @@ class _AddStoryState extends State<AddStory> {
   }
 
   @override
-  void dispose() {
-    if (selectedVideo != null && videoPlayerController.value.isInitialized) {
-      videoPlayerController.dispose();
-    }
-    super.dispose();
+  void initState() {
+    super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchuser(userid: FirebaseAuth.instance.currentUser!.uid);
   }
 
   @override
   Widget build(BuildContext context) {
-    final desController = TextEditingController();
+    final userprovider = Provider.of<UserProvider>(context);
+    void pushPOST() async {
+      try {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const Center(child: CircularProgressIndicator());
+          },
+        );
+      if (selectedImage != null ){
+        await uploadImageToImgBB();
+      }
+       
+        final uuid = Uuid().v4();
+        await FirebaseFirestore.instance.collection('story').doc(uuid).set({
+          'userName': userprovider.getuser!.userName,
+          'uid': userprovider.getuser!.uid,
+          'userImage': userprovider.getuser!.userImage,
+          
+          'imagePost': exportUrl != null ?  exportUrl : 'null', 
+          'postId': uuid,
+          
+          'des': desController.text,
+          
+        });
+        setState(() {
+          selectedImage = null;
+          desController.clear();
+          Navigator.of(context)
+              .pushReplacement(MaterialPageRoute(builder: (_) => ButtonNav()));
+        });
+      } on FirebaseAuthException catch (error) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Error: ${error.message}")));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("An unexpected error occurred: $e")));
+      }
+    }
 
     return SafeArea(
       child: Scaffold(
@@ -127,57 +146,98 @@ class _AddStoryState extends State<AddStory> {
                     "New Story",
                     style: TextStyle(color: Colors.white, fontSize: 22),
                   ),
-                  TextButton(
-                    onPressed: () async {
-                      await uploadImageToImgBB();
-                    },
-                    child: const Text(
-                      "PUSH",
-                      style: TextStyle(color: Colors.blue, fontSize: 16),
+                  // TextButton(
+                  //   onPressed: () async {
+
+                  //   },
+                  //   child: const Text(
+                  //     "PUSH",
+                  //     style: TextStyle(color: Colors.blue, fontSize: 16),
+                  //   ),
+                  // ),
+                ],
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.cyan)),
+                        icon: Image.asset(
+                          'assets/pen.png',
+                          color: Colors.grey[900],
+                        ),
+                        label: Text(
+                          'Type state',
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.grey[900],
+                              fontWeight: FontWeight.bold),
+                        ),
+                        onPressed: () {
+                          dialogStory(
+                              context: context,
+                              desController: desController,
+                              click: () {
+                                pushPOST();
+                              });
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              if (selectedImage != null)
-                ClipRRect(
-                  child: Image.file(
-                    selectedImage!,
-                    width: double.infinity,
-                    height: 300,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              else if (selectedVideo != null)
-                videoPlayerController.value.isInitialized
-                    ? AspectRatio(
-                        aspectRatio: videoPlayerController.value.aspectRatio,
-                        child: VideoPlayer(videoPlayerController),
-                      )
-                    : const CircularProgressIndicator()
-              else
-                const Text("No media selected"),
-              const SizedBox(height: 20),
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.add, size: 40, color: Colors.white),
-                onSelected: (String value) {
-                  if (value == 'image') {
-                    pickImage(ImageSource.gallery);
-                  } else if (value == 'video') {
-                    pickVideo(ImageSource.gallery);
-                  }
-                },
-                itemBuilder: (BuildContext context) => [
-                  const PopupMenuItem(
-                    value: 'image',
-                    child: Text("Select Image"),
-                  ),
-                  const PopupMenuItem(
-                    value: 'video',
-                    child: Text("Select Video"),
-                  ),
-                ],
-              ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton.icon(
+                        style: ButtonStyle(
+                            backgroundColor:
+                                WidgetStatePropertyAll(Colors.grey[900])),
+                        icon: Image.asset(
+                          'assets/icon_image.png',
+                          color: Colors.cyan,
+                        ),
+                        label: Text(
+                          'Select photo',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                        onPressed: () {
+                          pickImage(ImageSource.gallery);
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              )
+
+              // PopupMenuButton<String>(
+              //   icon: const Icon(Icons.add, size: 40, color: Colors.white),
+              //   onSelected: (String value) {
+              //     if (value == 'image') {
+              //       pickImage(ImageSource.gallery);
+              //     } else if (value == 'video') {
+
+              //     }
+              //   },
+              //   itemBuilder: (BuildContext context) => [
+              //     const PopupMenuItem(
+              //       value: 'image',
+              //       child: Text("Select Image"),
+              //     ),
+              //     const PopupMenuItem(
+              //       value: 'video',
+              //       child: Text("Select Video"),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         ),
