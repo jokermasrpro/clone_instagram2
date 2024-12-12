@@ -106,9 +106,10 @@ class _SignupScreenState extends State<SignupScreen> {
           emailController.text,
           [],
           [],
+          
           passController.text,
           exportUrl!,
-          FirebaseAuth.instance.currentUser!.uid);
+          FirebaseAuth.instance.currentUser!.uid, []);
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)

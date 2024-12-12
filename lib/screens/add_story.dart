@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:clone_instagram/screens/features/dialog_push_story.dart';
 import 'package:clone_instagram/screens/provider.dart';
@@ -100,17 +101,22 @@ class _AddStoryState extends State<AddStory> {
       if (selectedImage != null ){
         await uploadImageToImgBB();
       }
-       
+        String uid = FirebaseAuth.instance.currentUser!.uid;
         final uuid = Uuid().v4();
-        await FirebaseFirestore.instance.collection('story').doc(uuid).set({
-          'userName': userprovider.getuser!.userName,
-          'uid': userprovider.getuser!.uid,
-          'userImage': userprovider.getuser!.userImage,
-          
-          'imagePost': exportUrl != null ?  exportUrl : 'null', 
-          'postId': uuid,
-          
+        await FirebaseFirestore.instance.collection('users').doc(uid).update({
+          'stories':FieldValue.arrayUnion([{
+
+            'storyid': uuid,
+            'uid': uid,
+           'content': userprovider.getuser!.userImage,
+           
+           'type': selectedImage != null ? 'image' : 'text', 
+           'time': Timestamp.now(),
+           'viewies': [],
           'des': desController.text,
+          }]),
+          
+          
           
         });
         setState(() {

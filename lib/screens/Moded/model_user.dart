@@ -4,6 +4,7 @@ class ModelUser {
   final String userName, email, password, userImage, uid;
   final List following;
   final List followers;
+  final List stories;
 
   // Constructor
   ModelUser(
@@ -13,7 +14,7 @@ class ModelUser {
     this.following,
     this.password,
     this.userImage,
-    this.uid,
+    this.uid, this.stories,
   );
 
   
@@ -24,6 +25,7 @@ class ModelUser {
       'password': password,
       'followers': followers,
       'following': following,
+      'stories': stories,
       'userImage': userImage,
       'uid': uid,
     };
@@ -36,6 +38,7 @@ class ModelUser {
       snapshot['email'],
       snapshot['followers'],
       snapshot['following'],
+      snapshot['storeis'],
       snapshot['password'],
       snapshot['userImage'], 
       snapshot['uid'],
