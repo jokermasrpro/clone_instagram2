@@ -1,4 +1,4 @@
-import 'package:clone_instagram/screens/Moded/model_user.dart';
+import 'package:clone_instagram/Moded/model_user.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:flutter/material.dart';
 

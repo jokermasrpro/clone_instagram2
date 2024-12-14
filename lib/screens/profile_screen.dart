@@ -1,8 +1,8 @@
-
 import 'package:clone_instagram/screens/add_story.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:clone_instagram/screens/provider.dart';
-import 'package:clone_instagram/screens/view_image.dart';
+import 'package:clone_instagram/screens/widgets/view_image.dart';
+import 'package:clone_instagram/screens/widgets/view_story.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,9 +31,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
 
-    var snapPosts = await FirebaseFirestore.instance.collection('posts').where('uid',isEqualTo: widget.userUID).get();
+    var snapPosts = await FirebaseFirestore.instance
+        .collection('posts')
+        .where('uid', isEqualTo: widget.userUID)
+        .get();
 
-    countPosts = snapPosts.docs.length;    
+    countPosts = snapPosts.docs.length;
     following = snapshot.data()!['following'];
 
     setState(() {
@@ -97,6 +100,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             InkWell(
                               onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => ViewStory(
+                                            userStories: userProvider
+                                                .getuser!.stories)));
+                              },
+                              onLongPress: () {
                                 showDialog(
                                   context: context,
                                   builder: (context) {
@@ -110,19 +121,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               },
                               child: Stack(
                                 children: [
-                                  CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        userProvider.getuser!.userImage),
-                                    radius: 30,
+                                  Container(
+                                    width: 70,
+                                    height: 70,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          color:
+                                              userProvider.getuser!.stories !=
+                                                      null
+                                                  ? Colors.pink
+                                                  : Colors.transparent,
+                                          width: 2),
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                            userProvider.getuser!.userImage,
+                                          )),
+                                    ),
                                   ),
                                   Positioned(
-                                    top: 30,
-                                    left: 30,
+                                    top: 40,
+                                    left: 40,
                                     child: InkWell(
-                                      onTap: (){
-                                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => AddStory()));
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => AddStory(),
+                                          ),
+                                        );
                                       },
-                                    child: Icon(Icons.add,color: Colors.white,size: 30,)))
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                        size: 30,
+                                      ),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -135,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             )
                           ],
                         ),
-                         Column(
+                        Column(
                           children: [
                             Text(
                               countPosts.toString(),

@@ -1,4 +1,4 @@
-import 'package:clone_instagram/screens/login_screen.dart';
+import 'package:clone_instagram/screens/auth_page/login_screen.dart';
 import 'package:clone_instagram/screens/provider.dart';
 import 'package:clone_instagram/shard/widgets/button_nav.dart';
 import 'package:provider/provider.dart';

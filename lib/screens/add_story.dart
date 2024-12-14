@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 import 'package:clone_instagram/screens/features/dialog_push_story.dart';
 import 'package:clone_instagram/screens/provider.dart';
@@ -27,16 +26,29 @@ class _AddStoryState extends State<AddStory> {
 
   final desController = TextEditingController();
 
-  Future<void> pickImage(ImageSource source) async {
+  Future<void> pickImage(ImageSource source, Function fun) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
 
       if (pickedFile != null) {
-        setState(() async {
+        setState(() {
           selectedImage = File(pickedFile.path);
-        
         });
+        dialogStory(
+            context: context,
+            desController: desController,
+            selectedImage: selectedImage,
+            click: () {
+              fun();
+            },
+            cancel: () {
+              Navigator.pop(context);
+              desController.clear();
+            });
       } else {
+        setState(() {
+          desController.clear();
+        });
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("No image selected")));
       }
@@ -98,32 +110,30 @@ class _AddStoryState extends State<AddStory> {
             return const Center(child: CircularProgressIndicator());
           },
         );
-      if (selectedImage != null ){
-        await uploadImageToImgBB();
-      }
+        if (selectedImage != null) {
+          await uploadImageToImgBB();
+        }
         String uid = FirebaseAuth.instance.currentUser!.uid;
         final uuid = Uuid().v4();
         await FirebaseFirestore.instance.collection('users').doc(uid).update({
-          'stories':FieldValue.arrayUnion([{
-
-            'storyid': uuid,
-            'uid': uid,
-           'content': userprovider.getuser!.userImage,
-           
-           'type': selectedImage != null ? 'image' : 'text', 
-           'time': Timestamp.now(),
-           'viewies': [],
-          'des': desController.text,
-          }]),
-          
-          
-          
+          'stories': FieldValue.arrayUnion([
+            {
+              'storyid': uuid,
+              'uid': uid,
+              'content': exportUrl,
+              'time': Timestamp.now(),
+              'viewies': [],
+              'des': desController.text,
+            }
+          ]),
         });
         setState(() {
           selectedImage = null;
+          exportUrl = null;
           desController.clear();
-          Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (_) => ButtonNav()));
+          Navigator.pop(context);
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => ButtonNav()));
         });
       } on FirebaseAuthException catch (error) {
         Navigator.of(context).pop();
@@ -152,15 +162,7 @@ class _AddStoryState extends State<AddStory> {
                     "New Story",
                     style: TextStyle(color: Colors.white, fontSize: 22),
                   ),
-                  // TextButton(
-                  //   onPressed: () async {
-
-                  //   },
-                  //   child: const Text(
-                  //     "PUSH",
-                  //     style: TextStyle(color: Colors.blue, fontSize: 16),
-                  //   ),
-                  // ),
+                  SizedBox(),
                 ],
               ),
               Expanded(
@@ -192,6 +194,10 @@ class _AddStoryState extends State<AddStory> {
                               desController: desController,
                               click: () {
                                 pushPOST();
+                              },
+                              cancel: () {
+                                Navigator.pop(context);
+                                desController.clear();
                               });
                         },
                       ),
@@ -216,7 +222,8 @@ class _AddStoryState extends State<AddStory> {
                           style: TextStyle(color: Colors.white, fontSize: 18),
                         ),
                         onPressed: () {
-                          pickImage(ImageSource.gallery);
+                          // pickImage(ImageSource.gallery);
+                          pickImage(ImageSource.gallery, pushPOST);
                         },
                       ),
                     )

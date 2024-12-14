@@ -1,6 +1,6 @@
 import 'dart:io';
-import 'package:clone_instagram/screens/Moded/model_user.dart';
-import 'package:clone_instagram/screens/login_screen.dart';
+import 'package:clone_instagram/Moded/model_user.dart';
+import 'package:clone_instagram/screens/auth_page/login_screen.dart';
 import 'package:clone_instagram/shard/widgets/button_nav.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +75,7 @@ class _SignupScreenState extends State<SignupScreen> {
         String imageUrl = jsonResponse['data']['url'];
         exportUrl = imageUrl;
         Navigator.of(context).pop();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('تم تسحيل الحساب بنجاح'),
         ));
@@ -100,23 +100,24 @@ class _SignupScreenState extends State<SignupScreen> {
       await uploadImageToImgBB();
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text, password: passController.text);
-
       ModelUser user = ModelUser(
           nameController.text,
           emailController.text,
           [],
           [],
-          
           passController.text,
           exportUrl!,
-          FirebaseAuth.instance.currentUser!.uid, []);
+          FirebaseAuth.instance.currentUser!.uid,
+          [],
+          
+          );
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .set(user.convertToMap());
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const ButtonNav()));
+          context, MaterialPageRoute(builder: (context) =>  ButtonNav()));
     } on FirebaseAuthException catch (error) {
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context)

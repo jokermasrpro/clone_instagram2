@@ -1,4 +1,4 @@
-import 'package:clone_instagram/screens/Moded/model_user.dart';
+import 'package:clone_instagram/Moded/model_user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -9,6 +9,7 @@ class FirebaseServices {
         await FirebaseFirestore.instance.collection('users').doc(userUid).get();
     return ModelUser.convertSnapToModel(snap);
   }
+
 
   addPost({required Map postMap}) async {
     if (postMap['likes'].contains(FirebaseAuth.instance.currentUser!.uid)) {
@@ -36,6 +37,17 @@ class FirebaseServices {
           .doc(postDelete['postId'])
           .delete();
     }
+  }
+
+   delete_story({required Map story}) async {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(story['uid'])
+          .update(
+            {
+              'stories':FieldValue.arrayRemove([story])
+            }
+          );
   }
 
   addcomment(

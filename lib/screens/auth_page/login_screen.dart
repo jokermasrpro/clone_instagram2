@@ -1,5 +1,4 @@
-
-import 'package:clone_instagram/screens/signup_screen.dart';
+import 'package:clone_instagram/screens/auth_page/signup_screen.dart';
 import 'package:clone_instagram/shard/widgets/button_nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,11 +28,9 @@ class LoginScreen extends StatelessWidget {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const ButtonNav()));
       } on FirebaseAuthException catch (error) {
-        Navigator.of(context).pop();
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text("Error: ${error.message}")));
       } catch (e) {
-        Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text("An unexpected error occurred: $e")));
       }

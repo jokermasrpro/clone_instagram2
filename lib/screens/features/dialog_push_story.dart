@@ -6,12 +6,14 @@ Future dialogStory(
     {required BuildContext context,
     File? selectedImage,
     required final desController,
-    required VoidCallback click}) {
+    required VoidCallback click,
+    required VoidCallback cancel}) {
   return showDialog(
     context: context,
     builder: (context) {
       return Expanded(
         child: SingleChildScrollView(
+          physics: selectedImage != null ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
           child: AlertDialog(backgroundColor: Colors.grey[900], actions: [
             Column(
               children: [
@@ -23,15 +25,13 @@ Future dialogStory(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
+                        onPressed: cancel,
                         icon: Icon(
                           Icons.close,
                           color: Colors.grey,
                         )),
                     TextButton(
-                        onPressed: () {},
+                        onPressed: click,
                         child: Text(
                           "PUSH",
                           style: TextStyle(
