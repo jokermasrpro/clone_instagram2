@@ -12,41 +12,41 @@ Future dialogStory(
     context: context,
     builder: (context) {
       return Expanded(
-        child: SingleChildScrollView(
-          physics: selectedImage != null ? BouncingScrollPhysics() : NeverScrollableScrollPhysics(),
-          child: AlertDialog(backgroundColor: Colors.grey[900], actions: [
-            Column(
-              children: [
-                SizedBox(
-                  width: 400,
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                        onPressed: cancel,
-                        icon: Icon(
-                          Icons.close,
-                          color: Colors.grey,
-                        )),
-                    TextButton(
-                        onPressed: click,
-                        child: Text(
-                          "PUSH",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ))
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  // width: double.infinity,
+        child: AlertDialog(backgroundColor: Colors.grey[900], actions: [
+          Column(
+            children: [
+              SizedBox(
+                width: 400,
+                height: 10,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                      onPressed: cancel,
+                      icon: Icon(
+                        Icons.close,
+                        color: Colors.grey,
+                      )),
+                  TextButton(
+                      onPressed: click,
+                      child: Text(
+                        "PUSH",
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ))
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                // width: double.infinity,
+                child: Visibility(
+                  visible: selectedImage != null ? false : true,
                   child: TextField(
                     controller: desController,
                     maxLines: 4,
@@ -66,29 +66,29 @@ Future dialogStory(
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                selectedImage != null
-                    ? Container(
-                        width: double.infinity,
-                        alignment: Alignment.centerLeft,
-                        child: Image.file(
-                          selectedImage,
-                          height: 300,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : SizedBox(
-                        height: 5,
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              selectedImage != null
+                  ? Container(
+                      width: double.infinity,
+                      alignment: Alignment.centerLeft,
+                      child: Image.file(
+                        selectedImage,
+                        height: 300,
+                        fit: BoxFit.cover,
                       ),
-                SizedBox(
-                  height: 20,
-                ),
-              ],
-            ),
-          ]),
-        ),
+                    )
+                  : SizedBox(
+                      height: 5,
+                    ),
+              SizedBox(
+                height: 20,
+              ),
+            ],
+          ),
+        ]),
       );
     },
   );

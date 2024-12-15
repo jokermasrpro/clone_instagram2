@@ -1,6 +1,7 @@
 import 'package:clone_instagram/screens/auth_page/login_screen.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:clone_instagram/screens/provider.dart';
+import 'package:clone_instagram/screens/widgets/go_to_story.dart';
 import 'package:clone_instagram/screens/widgets/post.dart';
 import 'package:clone_instagram/screens/widgets/view_story.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,8 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  
-  const HomeScreen({super.key,});
+  const HomeScreen({
+    super.key,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -18,22 +20,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void fetch_current_user() async {
+    final String userUid = await FirebaseAuth.instance.currentUser!.uid;
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
   }
-  
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   final userProvider = Provider.of<UserProvider>(context, listen: false);
-  //   userProvider.fetchuser(userid: FirebaseServices().uidGet());
-  //   fetch_current_user();
-  // }
+
+  @override
+  void initState() {
+    super.initState();
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.fetchuser(userid: FirebaseAuth.instance.currentUser!.uid);
+    fetch_current_user();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<UserProvider>(context);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -104,50 +108,60 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                         if (snapshot.hasData) {
                           final getData = snapshot.data!.docs;
-
-                          return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: getData.length,
-                            itemBuilder: (context, index) {
-                              Map<String, dynamic> userStories =
-                                  getData[index].data();
-                              return InkWell(
-                                onTap: () {
+                          print("-------------------------");
+                          print(getData);
+                          return Row(
+                            children: [
+                              GoToStory(
+                                click: () {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (_) => ViewStory(
-                                        userStories: userStories['stories'],
+                                        userStories:
+                                            userProvider.getuser!.stories,
+                                        myUid: userProvider.getuser!.uid,
                                       ),
                                     ),
                                   );
                                 },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        width: 60,
-                                        height: 60,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                              color: Colors.pink, width: 2),
-                                          image: DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: NetworkImage(
-                                              'https://i.pinimg.com/736x/f4/05/a8/f405a89b972ef01be59c662757590dd5.jpg',
-                                              )),
-                                        ),
-                                      ),
-                                      Text(
-                                        "name",
-                                        style: TextStyle(color: Colors.grey),
-                                      )
-                                    ],
-                                  ),
+                                userImage: userProvider.getuser?.userImage,
+                                userName: userProvider.getuser?.userName,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: getData.length,
+                                  itemBuilder: (context, index) {
+                                    Map<String, dynamic> userStories =
+                                        getData[index].data();
+                                    // delete story after 24 hours
+                                    FirebaseServices().deleteStoryAfter24H(
+                                        story: userStories['stories'][index]);
+                                    return GoToStory(
+                                      click: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => ViewStory(
+                                              userStories:
+                                                  userStories['stories'],
+                                              myUid: FirebaseAuth
+                                                  .instance.currentUser!.uid,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      userImage:
+                                          'https://i.pinimg.com/736x/f4/05/a8/f405a89b972ef01be59c662757590dd5.jpg',
+                                      userName: 'Name',
+                                      hideOpenStory: 'hide',
+                                    );
+                                  },
                                 ),
-                              );
-                            },
+                              ),
+                            ],
                           );
                         } else {
                           return Center(child: Text("null"));

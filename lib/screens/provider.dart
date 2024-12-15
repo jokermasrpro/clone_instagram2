@@ -9,20 +9,29 @@ class UserProvider with ChangeNotifier {
     return userData;
   }
 
-  void fetchuser({required  userid,}) async {
+  void fetchuser({
+    required userid,
+  }) async {
     user = await FirebaseServices().userdetils(userUid: userid);
     userData = user;
     notifyListeners();
   }
 
-  void increase_followers(){
+  void increase_followers() {
     getuser!.followers.length++;
     notifyListeners();
   }
-  void decrease_followers(){
+
+  void decrease_followers() {
     getuser!.followers.length--;
     notifyListeners();
   }
-  
 
+  void delete_story({required Map story}) {
+    userData!.stories.removeWhere(
+      (element) {
+        return element == story;
+      },
+    );
+  }
 }

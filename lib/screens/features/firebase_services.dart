@@ -39,6 +39,17 @@ class FirebaseServices {
     }
   }
 
+
+
+
+  deleteStoryAfter24H({required Map story}){
+    Duration diffreance = DateTime.now().difference(story['time'].toDate());
+
+    if(diffreance.inMinutes>2){
+      delete_story(story: story);
+    }
+  }
+
    delete_story({required Map story}) async {
       FirebaseFirestore.instance
           .collection('users')

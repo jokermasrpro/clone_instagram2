@@ -48,6 +48,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.getuser!.stories.forEach((element){
+      FirebaseServices().deleteStoryAfter24H(story: element);
+    });
     userProvider.fetchuser(userid: widget.userUID);
     fetch_current_user();
   }
@@ -104,8 +107,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => ViewStory(
-                                            userStories: userProvider
-                                                .getuser!.stories)));
+                                              userStories:
+                                                  userProvider.getuser!.stories,
+                                              myUid: userProvider.getuser!.uid,
+                                            ),),);
                               },
                               onLongPress: () {
                                 showDialog(
@@ -127,11 +132,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                          color:
-                                              userProvider.getuser!.stories !=
-                                                      null
-                                                  ? Colors.pink
-                                                  : Colors.transparent,
+                                          color: userProvider
+                                                  .getuser!.stories.isNotEmpty
+                                              ? Colors.pink
+                                              : Colors.transparent,
                                           width: 2),
                                       image: DecorationImage(
                                           fit: BoxFit.cover,
