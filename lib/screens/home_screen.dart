@@ -1,5 +1,5 @@
-import 'package:clone_instagram/screens/auth_page/login_screen.dart';
-import 'package:clone_instagram/screens/features/firebase_services.dart';
+import 'package:clone_instagram/screens/chat_screen/all_chats_screen.dart';
+import 'package:clone_instagram/screens/chat_screen/chat_screen.dart';
 import 'package:clone_instagram/screens/provider.dart';
 import 'package:clone_instagram/screens/widgets/go_to_story.dart';
 import 'package:clone_instagram/screens/widgets/post.dart';
@@ -64,21 +64,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     // const Spacer(),
                     IconButton(
-                      onPressed: () async {
-                        await FirebaseAuth.instance.signOut().then(
-                          (value) {
-                            // ignore: use_build_context_synchronously
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (context) => const LoginScreen(),
-                              ),
-                            );
-                          },
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ChatScreen(),
+                          ),
                         );
                       },
                       icon: Icon(
-                        Icons.exit_to_app,
-                        color: Colors.grey[110],
+                        Icons.chat,
+                        color: Colors.grey[50],
                       ),
                     ),
                   ],
@@ -108,21 +103,22 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                         if (snapshot.hasData) {
                           final getData = snapshot.data!.docs;
-                          print("-------------------------");
-                          print(getData);
+
                           return Row(
                             children: [
                               GoToStory(
                                 click: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => ViewStory(
-                                        userStories:
-                                            userProvider.getuser!.stories,
-                                        myUid: userProvider.getuser!.uid,
-                                      ),
-                                    ),
-                                  );
+                                  userProvider.getuser!.stories.isNotEmpty
+                                      ? Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (_) => ViewStory(
+                                              userStories:
+                                                  userProvider.getuser!.stories,
+                                              myUid: userProvider.getuser!.uid,
+                                            ),
+                                          ),
+                                        )
+                                      : null;
                                 },
                                 userImage: userProvider.getuser?.userImage,
                                 userName: userProvider.getuser?.userName,
@@ -138,8 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Map<String, dynamic> userStories =
                                         getData[index].data();
                                     // delete story after 24 hours
-                                    FirebaseServices().deleteStoryAfter24H(
-                                        story: userStories['stories'][index]);
+                                    // FirebaseServices().deleteStoryAfter24H(
+                                    //     story: userStories['stories'][index]);
                                     return GoToStory(
                                       click: () {
                                         Navigator.of(context).push(
@@ -164,7 +160,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           );
                         } else {
-                          return Center(child: Text("null"));
+                          return Center(
+                              child: Text(
+                            "null",
+                            style: TextStyle(color: Colors.red),
+                          ));
                         }
                       }),
                 ),

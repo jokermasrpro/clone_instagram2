@@ -1,4 +1,5 @@
 import 'package:clone_instagram/screens/add_story.dart';
+import 'package:clone_instagram/screens/chat_screen/chat_screen.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:clone_instagram/screens/provider.dart';
 import 'package:clone_instagram/screens/widgets/view_image.dart';
@@ -48,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.getuser!.stories.forEach((element){
+    userProvider.getuser!.stories.forEach((element) {
       FirebaseServices().deleteStoryAfter24H(story: element);
     });
     userProvider.fetchuser(userid: widget.userUID);
@@ -88,6 +89,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: FirebaseAuth.instance.currentUser!.uid == widget.userUID
             ? Text("")
             : BackButton(),
+        actions: [
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: FirebaseAuth.instance.currentUser!.uid == widget.userUID
+                ? null
+                : IconButton(
+                    onPressed: () {
+                  
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => ChatScreen(uid: widget.userUID,),),);
+                    },
+                    icon: Icon(Icons.chat)),
+          )
+        ],
       ),
       body: isloading == false
           ? CircularProgressIndicator()
@@ -104,13 +119,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             InkWell(
                               onTap: () {
                                 Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => ViewStory(
-                                              userStories:
-                                                  userProvider.getuser!.stories,
-                                              myUid: userProvider.getuser!.uid,
-                                            ),),);
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ViewStory(
+                                      userStories:
+                                          userProvider.getuser!.stories,
+                                      myUid: userProvider.getuser!.uid,
+                                    ),
+                                  ),
+                                );
                               },
                               onLongPress: () {
                                 showDialog(

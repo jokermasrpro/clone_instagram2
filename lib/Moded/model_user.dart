@@ -5,6 +5,7 @@ class ModelUser {
   final List<dynamic> following;
   final List<dynamic> followers;
   final List<dynamic> stories;
+  final List<dynamic> chats;
 
   // Constructor
   ModelUser(
@@ -16,6 +17,7 @@ class ModelUser {
     this.userImage,
     this.uid,
     this.stories,
+    this.chats,
   );
 
   Map<String, dynamic> convertToMap() {
@@ -28,6 +30,7 @@ class ModelUser {
       'userImage': userImage,
       'uid': uid,
       'stories': stories,
+      'chats': chats,
     };
   }
 
@@ -42,6 +45,7 @@ class ModelUser {
     snapshot['userImage'] ?? '',
     snapshot['uid'] ?? '',
     snapshot['stories'] ?? [],
+    snapshot['chats'] ?? [],
     );
   }
 }

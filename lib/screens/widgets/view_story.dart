@@ -1,4 +1,3 @@
-import 'package:clone_instagram/main.dart';
 import 'package:clone_instagram/screens/features/firebase_services.dart';
 import 'package:clone_instagram/screens/provider.dart';
 import 'package:flutter/material.dart';

@@ -6,12 +6,18 @@ class GoToStory extends StatelessWidget {
   String? userImage;
   String? userName;
   String? hideOpenStory;
+  bool? checkColor;
+ 
   GoToStory(
       {super.key,
       required this.click,
       this.userImage,
       this.userName,
-      this.hideOpenStory});
+      this.checkColor,
+      this.hideOpenStory,
+     });
+
+    
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +33,7 @@ class GoToStory extends StatelessWidget {
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.pink, width: 2),
+                  border: Border.all(color:checkColor == true ?  Colors.pink : Colors.transparent  , width: 2),
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     image: NetworkImage(

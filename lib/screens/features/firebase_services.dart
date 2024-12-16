@@ -10,7 +10,6 @@ class FirebaseServices {
     return ModelUser.convertSnapToModel(snap);
   }
 
-
   addPost({required Map postMap}) async {
     if (postMap['likes'].contains(FirebaseAuth.instance.currentUser!.uid)) {
       await FirebaseFirestore.instance
@@ -39,26 +38,18 @@ class FirebaseServices {
     }
   }
 
-
-
-
-  deleteStoryAfter24H({required Map story}){
+  deleteStoryAfter24H({required Map story}) {
     Duration diffreance = DateTime.now().difference(story['time'].toDate());
 
-    if(diffreance.inMinutes>2){
+    if (diffreance.inMinutes > 2) {
       delete_story(story: story);
     }
   }
 
-   delete_story({required Map story}) async {
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(story['uid'])
-          .update(
-            {
-              'stories':FieldValue.arrayRemove([story])
-            }
-          );
+  delete_story({required Map story}) async {
+    FirebaseFirestore.instance.collection('users').doc(story['uid']).update({
+      'stories': FieldValue.arrayRemove([story])
+    });
   }
 
   addcomment(
@@ -93,16 +84,52 @@ class FirebaseServices {
       'following': FieldValue.arrayUnion([userid])
     });
 
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(userid)
-        .update({
-      'followers': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+    await FirebaseFirestore.instance.collection("users").doc(userid).update({
+      'followers':
+          FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
     });
   }
 
+  addChat({required userid, required chatId}) async {
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'chats': FieldValue.arrayUnion([userid])
+    });
 
-  unfollow({required userid})async{
+    await FirebaseFirestore.instance.collection("users").doc(userid).update({
+      'chats': FieldValue.arrayUnion([FirebaseAuth.instance.currentUser!.uid])
+    });
+  }
+
+  addChatFrind({required Map map}) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'chats': FieldValue.arrayUnion([
+        {
+          'chatId': map['chatId'],
+          'userId': map['userId'],
+        }
+      ]),
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(map['userId'])
+        .update({
+      'chats': FieldValue.arrayUnion([
+        {
+          'chatId': map['chatId'],
+          'userId': FirebaseAuth.instance.currentUser!.uid,
+        }
+      ]),
+    });
+  }
+
+  unfollow({required userid}) async {
     await FirebaseFirestore.instance
         .collection("users")
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -110,11 +137,9 @@ class FirebaseServices {
       'following': FieldValue.arrayRemove([userid])
     });
 
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(userid)
-        .update({
-      'followers': FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
+    await FirebaseFirestore.instance.collection("users").doc(userid).update({
+      'followers':
+          FieldValue.arrayRemove([FirebaseAuth.instance.currentUser!.uid])
     });
   }
 }

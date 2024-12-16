@@ -109,6 +109,7 @@ class _SignupScreenState extends State<SignupScreen> {
           exportUrl!,
           FirebaseAuth.instance.currentUser!.uid,
           [],
+          [],
           
           );
       await FirebaseFirestore.instance
